@@ -100,6 +100,83 @@ The application will be available at:
 - Backend API: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
+## 🌐 Deployment
+
+### Option 1: Deploy to Render (Recommended)
+
+1. **Create a Render account**: Sign up at [render.com](https://render.com)
+
+2. **Connect your GitHub repository**:
+   - Go to Render Dashboard
+   - Click "New +" → "Blueprint"
+   - Connect your GitHub account
+   - Select the HackRx-6.0 repository
+
+3. **Deploy using the blueprint**:
+   - Render will automatically detect the `render.yaml` file
+   - Set your environment variables in the Render dashboard
+   - Deploy both backend and frontend services
+
+4. **Set environment variables** in Render dashboard:
+   ```
+   API_KEY=your_secure_api_key
+   SECRET_KEY=your_jwt_secret_key
+   GEMINI_API_KEY=your_gemini_api_key
+   PINECONE_API_KEY=your_pinecone_api_key
+   PINECONE_ENVIRONMENT=your_pinecone_environment
+   ```
+
+### Option 2: Deploy to Railway
+
+1. **Create Railway account**: Sign up at [railway.app](https://railway.app)
+2. **Connect GitHub**: Link your HackRx-6.0 repository
+3. **Deploy**: Railway will automatically detect and deploy using `railway.json`
+4. **Set environment variables** in Railway dashboard
+
+### Option 3: Deploy to Vercel
+
+1. **Install Vercel CLI**:
+   ```bash
+   npm install -g vercel
+   ```
+
+2. **Deploy**:
+   ```bash
+   vercel --prod
+   ```
+
+3. **Set environment variables** in Vercel dashboard
+
+### Option 4: Docker Deployment
+
+1. **Build and run with Docker Compose**:
+   ```bash
+   # Create .env file from template
+   cp .env.example .env
+   # Edit .env with your values
+   
+   # Build and run
+   docker-compose up -d
+   ```
+
+2. **Access the application**:
+   - Frontend: http://localhost
+   - Backend: http://localhost:8000
+
+### Quick Deploy Scripts
+
+For Windows:
+```cmd
+deploy-render.bat
+```
+
+For Linux/Mac:
+```bash
+chmod +x deploy-render.sh
+./deploy-render.sh
+```
+- API Documentation: http://localhost:8000/docs
+
 ## 📁 Project Structure
 
 ```
