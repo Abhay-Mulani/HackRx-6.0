@@ -1,27 +1,13 @@
 import os
-from dotenv import load_dotenv, find_dotenv
-# Load environment variables from .env file in backend directory
-load_dotenv(find_dotenv())
-import asyncio
-import logging
-from fastapi import FastAPI, HTTPException, Security
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from pydantic import BaseModel
-from typing import List
-from app.api import documents, queries, hackrx
-
-# Configure logging for explainability
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
-from app.core.config import settings  # Import settings to access environment variables
-# Debug log to verify GEMINI_API_KEY is loaded
-logger.info(f"GEMINI_API_KEY loaded: {settings.GEMINI_API_KEY is not None}")
-
+from dotenv import load_dotenv
 load_dotenv()
 
-app = FastAPI(title="HackRx 6.0 Query Retrieval System")
-security = HTTPBearer()
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+# Import only the minimal API routes
+from app.api.v1.endpoints import router as hackrx_router
+
+app = FastAPI(title="HackRx 6.0 Query Retrieval System - Lightweight")
 
 app.add_middleware(
     CORSMiddleware,
@@ -31,6 +17,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(documents.router)
-app.include_router(queries.router)
-app.include_router(hackrx.router) 
+# Include only the essential router
+app.include_router(hackrx_router)
+
+@app.get("/")
+def read_root():
+    return {"message": "HackRx 6.0 API is running", "status": "healthy"} 
