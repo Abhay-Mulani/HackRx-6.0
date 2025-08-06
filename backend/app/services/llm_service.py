@@ -3,20 +3,71 @@ import requests
 import json
 
 def query_llm(question: str, context: str = "") -> str:
-    """Query LLM with document context"""
+    """Query LLM with document context - Gemini preferred"""
     
-    # Try Groq first (free tier available)
+    # Try Gemini first (user's preference)
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+    if gemini_api_key:
+        return query_gemini(question, context, gemini_api_key)
+    
+    # Try Groq as fallback (free tier available)
     groq_api_key = os.getenv("GROQ_API_KEY")
     if groq_api_key:
         return query_groq(question, context, groq_api_key)
     
-    # Fallback to Grok
+    # Try Grok as final fallback
     grok_api_key = os.getenv("GROK_API_KEY")
     if grok_api_key:
         return query_grok(question, context, grok_api_key)
     
     # If no API keys, return intelligent fallback
     return generate_fallback_response(question, context)
+
+def query_gemini(question: str, context: str, api_key: str) -> str:
+    """Query Google Gemini API"""
+    
+    # Truncate context to avoid token limits
+    if len(context) > 2000:
+        context = context[:2000] + "... [truncated]"
+    
+    payload = {
+        "contents": [{
+            "parts": [{
+                "text": f"""You are a helpful document analysis assistant. Answer the question based on the provided document context.
+
+Document Context:
+{context}
+
+Question: {question}
+
+Please provide a clear, concise answer based on the document content. If the information is not in the document, say so clearly."""
+            }]
+        }],
+        "generationConfig": {
+            "temperature": 0.3,
+            "topK": 40,
+            "topP": 0.95,
+            "maxOutputTokens": 500,
+        }
+    }
+    
+    try:
+        response = requests.post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key={api_key}",
+            headers={"Content-Type": "application/json"},
+            json=payload,
+            timeout=30
+        )
+        response.raise_for_status()
+        result = response.json()
+        
+        if 'candidates' in result and len(result['candidates']) > 0:
+            return result['candidates'][0]['content']['parts'][0]['text'].strip()
+        else:
+            return "Gemini API returned an unexpected response format."
+            
+    except Exception as e:
+        return f"Gemini API temporarily unavailable: {e}. Using document analysis fallback."
 
 def query_groq(question: str, context: str, api_key: str) -> str:
     """Query Groq API (free tier available)"""

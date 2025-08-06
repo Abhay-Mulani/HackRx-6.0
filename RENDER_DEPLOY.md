@@ -22,16 +22,21 @@ Set these in the backend service:
 - SECRET_KEY=jwt_secret_key_for_hackrx_very_secure
 - DEBUG=false
 
-### Optional for Enhanced AI Responses:
+### Optional for Enhanced AI Responses (in order of preference):
+- GEMINI_API_KEY=your_gemini_api_key_here  (Preferred - Google AI Studio)
 - GROQ_API_KEY=your_groq_api_key_here  (Free tier: https://console.groq.com/)
 - GROK_API_KEY=your_grok_api_key_here  (Fallback)
-- GEMINI_API_KEY=your_gemini_api_key
 - PINECONE_API_KEY=your_pinecone_api_key
 - PINECONE_ENVIRONMENT=gcp-starter
 
-## Getting Free API Keys:
+## Getting API Keys:
 
-### Groq API (Recommended - FREE):
+### Gemini API (Recommended):
+1. Go to https://aistudio.google.com/app/apikey
+2. Create a new API key (free tier available)
+3. Add to Render environment as GEMINI_API_KEY
+
+### Groq API (Free Alternative):
 1. Go to https://console.groq.com/
 2. Sign up for free account
 3. Generate API key
@@ -39,5 +44,6 @@ Set these in the backend service:
 
 ### How the System Works:
 - **Without API Keys**: Basic document parsing + keyword-based text extraction
-- **With Groq API**: Full AI-powered document analysis and intelligent responses
+- **With Gemini API**: Full AI-powered document analysis using Google's Gemini model
+- **With Groq API**: Alternative AI analysis using open-source models
 - System automatically falls back gracefully if APIs are unavailable
