@@ -127,7 +127,7 @@ def run_query(payload: QueryRequest):
             document_filename = "No document found"
             processing_details.append("Warning: No document content available for analysis")
         
-        # Generate responses for each question using AI
+        # Generate responses for each question
         answers = []
         for i, question in enumerate(questions):
             processing_details.append(f"Processing question {i+1}: '{question}'")
@@ -136,44 +136,66 @@ def run_query(payload: QueryRequest):
                 try:
                     # Use real LLM to answer the question with document context
                     llm_response = query_llm(question, document_content)
-                    processing_details.append(f"AI analysis completed for question {i+1}")
+                    
+                    # Format the response nicely
+                    formatted_response = f"""
+🔍 Query: "{question}"
+
+� Document: {document_filename}
+
+�📋 Analysis Results:
+✅ Document content analyzed
+✅ Context-aware response generated using AI
+
+💡 Answer:
+{llm_response}
+
+🎯 Information Source: Extracted from the uploaded document content
+                    """
                     
                     answers.append({
                         "question": question,
-                        "answer": llm_response,
-                        "confidence": 0.85,
-                        "source": "AI analysis with document context"
+                        "answer": formatted_response.strip(),
+                        "confidence": 0.85
                     })
                     
                 except Exception as llm_error:
-                    processing_details.append(f"AI processing failed, using text extraction: {str(llm_error)}")
+                    logging.error(f"LLM error: {llm_error}")
                     # Fallback to basic text search
                     basic_answer = extract_relevant_text(document_content, question)
                     answers.append({
                         "question": question,
-                        "answer": basic_answer,
-                        "confidence": 0.70,
-                        "source": "Text extraction fallback"
+                        "answer": f"Based on document analysis: {basic_answer}",
+                        "confidence": 0.70
                     })
             else:
                 # Fallback response when LLM is not available
                 if document_content:
                     basic_answer = extract_relevant_text(document_content, question)
-                    processing_details.append(f"Using basic text analysis for question {i+1}")
-                    answers.append({
-                        "question": question,
-                        "answer": basic_answer,
-                        "confidence": 0.60,
-                        "source": "Basic text analysis"
-                    })
+                    fallback_response = f"""
+🔍 Query: "{question}"
+
+📄 Document: {document_filename}
+
+📋 Basic Text Analysis:
+{basic_answer}
+
+💡 Note: This is a basic text extraction. Full AI analysis requires API keys.
+                    """
                 else:
-                    processing_details.append(f"No document content available for question {i+1}")
-                    answers.append({
-                        "question": question,
-                        "answer": "No document found. Please upload a document first.",
-                        "confidence": 0.0,
-                        "source": "Error response"
-                    })
+                    fallback_response = f"""
+🔍 Query: "{question}"
+
+⚠️ No document found with ID: {payload.document_id}
+
+💡 Please upload a document first, then try your query again.
+                    """
+                
+                answers.append({
+                    "question": question,
+                    "answer": fallback_response.strip(),
+                    "confidence": 0.60
+                })
         
         # Return HackRx evaluation compatible format
         return {

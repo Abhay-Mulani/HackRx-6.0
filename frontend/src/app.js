@@ -303,30 +303,31 @@ const QueryInput = {
                 
                 console.log('Response from /hackrx/run:', response.data);
                 
-                // Handle different response formats
+                // Handle the new HackRx evaluation format
                 let answers;
-                if (response.data.answers) {
-                    // Multiple questions format
+                if (response.data.success && response.data.answers) {
                     answers = response.data.answers;
                 } else if (response.data.result) {
-                    // Single question format
+                    // Fallback for single question format
                     answers = [{
                         question: validQuestions[0],
                         answer: response.data.result,
-                        confidence: response.data.confidence || 0.92
+                        confidence: response.data.confidence || 0.85
                     }];
                 } else {
-                    // Fallback
+                    // Error case
                     answers = validQuestions.map(q => ({
                         question: q,
-                        answer: "Demo response received successfully",
-                        confidence: 0.85
+                        answer: response.data.error_message || "Processing failed",
+                        confidence: 0.0
                     }));
                 }
                 
                 this.$emit('results', {
                     questions: validQuestions,
-                    answers: answers
+                    answers: answers,
+                    processing_details: response.data.processing_details || [],
+                    success: response.data.success || false
                 });
                 
             } catch (error) {
@@ -344,9 +345,16 @@ const QueryResults = {
     props: ['results'],
     template: `
         <div class="results-container">
+            <div v-if="results && results.processing_details && results.processing_details.length > 0" class="processing-info">
+                <h4><i class="fas fa-cogs"></i> Processing Details:</h4>
+                <ul class="processing-list">
+                    <li v-for="detail in results.processing_details" :key="detail">{{ detail }}</li>
+                </ul>
+            </div>
+            
             <div v-if="!results || !results.answers || results.answers.length === 0" class="no-results">
                 <p>No results to display</p>
-                <pre>{{ JSON.stringify(results, null, 2) }}</pre>
+                <pre v-if="results">{{ JSON.stringify(results, null, 2) }}</pre>
             </div>
             <div v-else>
                 <div v-for="(answer, index) in results.answers" :key="index" class="result-item">
@@ -357,6 +365,9 @@ const QueryResults = {
                     <div class="answer">
                         <h4><i class="fas fa-lightbulb"></i> Answer:</h4>
                         <div class="answer-content" v-html="formatAnswer(answer)"></div>
+                        <div class="answer-meta" v-if="answer.confidence !== undefined">
+                            <small>Confidence: {{ (answer.confidence * 100).toFixed(1) }}% | Source: {{ answer.source || 'AI Analysis' }}</small>
+                        </div>
                     </div>
                 </div>
             </div>
