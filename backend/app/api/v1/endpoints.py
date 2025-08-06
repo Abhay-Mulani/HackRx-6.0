@@ -37,14 +37,24 @@ async def upload_document(file: UploadFile = File(...)):
             "status": "error"
         }
 
-@router.post("/run", response_model=QueryResponse)
+@router.post("/run")
 def run_query(payload: QueryRequest):
     """Ultra-lightweight query processing for free tier"""
     try:
-        # Generate a realistic demo response without any heavy processing
-        question = payload.question or "sample query"
+        # Handle both single question and multiple questions
+        questions = []
+        if payload.questions:
+            questions = [q for q in payload.questions if q and q.strip()]
+        elif payload.question:
+            questions = [payload.question]
         
-        demo_response = f"""
+        if not questions:
+            questions = ["What is this document about?"]
+        
+        # Generate responses for each question
+        answers = []
+        for i, question in enumerate(questions):
+            demo_response = f"""
 🔍 Query: "{question}"
 
 📋 Analysis Results:
@@ -66,9 +76,24 @@ def run_query(payload: QueryRequest):
 
 💡 Note: This is a demo response optimized for free hosting. 
 In production, this would include actual document analysis and vector search results.
-        """
+            """
+            
+            answers.append({
+                "question": question,
+                "answer": demo_response.strip(),
+                "confidence": 0.92
+            })
         
-        return QueryResponse(result=demo_response.strip(), confidence=0.92)
+        # Return format that matches frontend expectations
+        if len(answers) == 1 and payload.question:
+            # Single question format
+            return QueryResponse(result=answers[0]["answer"], confidence=answers[0]["confidence"])
+        else:
+            # Multiple questions format
+            return {
+                "answers": answers,
+                "status": "success"
+            }
         
     except Exception as e:
         return QueryResponse(
