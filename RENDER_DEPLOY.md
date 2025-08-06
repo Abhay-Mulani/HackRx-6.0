@@ -16,9 +16,28 @@ After the backend is deployed, manually create a Static Site service:
 
 ## Environment Variables for Backend
 Set these in the backend service:
+
+### Required for Real Document Processing:
 - API_KEY=hackrx_secure_api_key_2024
 - SECRET_KEY=jwt_secret_key_for_hackrx_very_secure
 - DEBUG=false
+
+### Optional for Enhanced AI Responses:
+- GROQ_API_KEY=your_groq_api_key_here  (Free tier: https://console.groq.com/)
+- GROK_API_KEY=your_grok_api_key_here  (Fallback)
 - GEMINI_API_KEY=your_gemini_api_key
 - PINECONE_API_KEY=your_pinecone_api_key
 - PINECONE_ENVIRONMENT=gcp-starter
+
+## Getting Free API Keys:
+
+### Groq API (Recommended - FREE):
+1. Go to https://console.groq.com/
+2. Sign up for free account
+3. Generate API key
+4. Add to Render environment as GROQ_API_KEY
+
+### How the System Works:
+- **Without API Keys**: Basic document parsing + keyword-based text extraction
+- **With Groq API**: Full AI-powered document analysis and intelligent responses
+- System automatically falls back gracefully if APIs are unavailable

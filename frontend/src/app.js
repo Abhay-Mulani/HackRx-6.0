@@ -95,7 +95,7 @@ const DocumentUpload = {
             const file = e.target.files[0];
             if (file) {
                 this.handleFile(file);
-            }x
+            }
         },
         async handleFile(file) {
             this.isUploading = true;
@@ -114,11 +114,15 @@ const DocumentUpload = {
                 
                 this.isSuccess = true;
                 this.isUploading = false;
-                // Instead of blob URL, use a file object that we can handle
+                
+                // Pass the document_id from the response
                 this.$emit('processed', { 
                     url: null, // No URL for local files
                     file: file, // Pass the actual file object
-                    type: 'file' 
+                    type: 'file',
+                    document_id: response.data.document_id || 1, // Use real document_id
+                    filename: response.data.filename,
+                    preview: response.data.text_preview
                 });
             } catch (error) {
                 console.error('Upload failed:', error);
@@ -134,7 +138,9 @@ const DocumentUpload = {
                 this.$emit('processed', { 
                     url: this.documentUrl, 
                     file: null,
-                    type: 'url' 
+                    type: 'url',
+                    document_id: 1, // Default for URL processing
+                    filename: 'Document from URL'
                 });
             }
         },
@@ -281,10 +287,11 @@ const QueryInput = {
                 // Filter out empty questions
                 const validQuestions = this.selectedQuestions.filter(q => q.trim() !== '');
                 
-                // Prepare payload based on whether it's single or multiple questions
+                // Prepare payload with real document_id
+                const documentId = this.documentUrl.document_id || 1;
                 const payload = validQuestions.length === 1 
-                    ? { question: validQuestions[0], document_id: 1 }
-                    : { questions: validQuestions, document_id: 1 };
+                    ? { question: validQuestions[0], document_id: documentId }
+                    : { questions: validQuestions, document_id: documentId };
                 
                 console.log('Sending payload:', payload);
                 
