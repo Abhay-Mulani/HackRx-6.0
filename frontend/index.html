@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HackRx 6.0 - Query Retrieval System</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="src/style.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .results-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-top: 20px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            color: #667eea;
+            font-weight: 500;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error {
+            color: #e74c3c;
+            background: #fdf2f2;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #e74c3c;
+        }
+
+        .success {
+            color: #27ae60;
+            background: #f8fff8;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #27ae60;
+        }
+
+        /* Answer formatting styles */
+        .answer-content {
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+
+        .answer-content strong {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .answer-content br {
+            margin-bottom: 5px;
+        }
+
+        .result-item {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            background: #fafafa;
+        }
+
+        .question {
+            margin-bottom: 15px;
+        }
+
+        .question h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .answer h4 {
+            color: #27ae60;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <div class="container">
+            <div class="header">
+                <h1><i class="fas fa-search"></i> HackRx 6.0</h1>
+                <p>Intelligent Document Query Retrieval System</p>
+            </div>
+
+            <div class="main-content">
+                <div class="card">
+                    <h2><i class="fas fa-cloud-upload-alt"></i> Document Processing</h2>
+                    <document-upload @processed="onDocumentProcessed"></document-upload>
+                </div>
+
+                <div class="card">
+                    <h2><i class="fas fa-question-circle"></i> Query Interface</h2>
+                    <query-input 
+                        :document-url="documentUrl" 
+                        @results="onResults"
+                        @loading="onLoading"
+                        @error="onError">
+                    </query-input>
+                </div>
+            </div>
+
+            <div v-if="loading" class="results-section">
+                <div class="loading">
+                    <div class="spinner"></div>
+                    Processing your queries...
+                </div>
+            </div>
+
+            <div v-if="error" class="results-section">
+                <div class="error">
+                    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+                </div>
+            </div>
+
+            <div v-if="results && results.answers && results.answers.length > 0" class="results-section">
+                <h2><i class="fas fa-lightbulb"></i> Query Results</h2>
+                <query-results :results="results"></query-results>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vue 3 CDN -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="src/app.js"></script>
+</body>
+</html>

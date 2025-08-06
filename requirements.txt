@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+pydantic
+python-dotenv
+PyPDF2
+pinecone
+sqlalchemy
+psycopg2-binary
+requests
+python-multipart
+sentence-transformers
+python-jose[cryptography]
+passlib[bcrypt]
