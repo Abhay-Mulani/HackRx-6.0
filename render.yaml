@@ -9,13 +9,3 @@ services:
       - key: PYTHON_VERSION
         value: 3.12.3
     plan: free
-    
-  - type: static
-    name: hackrx-frontend
-    buildCommand: "echo 'No build needed for static files'"
-    staticPublishPath: ./frontend
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html
-    plan: free
