@@ -95,7 +95,7 @@ const DocumentUpload = {
             const file = e.target.files[0];
             if (file) {
                 this.handleFile(file);
-            }
+            }x
         },
         async handleFile(file) {
             this.isUploading = true;
