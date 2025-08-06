@@ -1,5 +1,8 @@
 const { createApp } = Vue;
 
+// API Configuration
+const API_BASE_URL = 'https://hackrx-backend-pw4u.onrender.com';
+
 // Document Upload Component
 const DocumentUpload = {
     template: `
@@ -103,7 +106,7 @@ const DocumentUpload = {
             formData.append('file', file);
             
             try {
-                const response = await axios.post('http://127.0.0.1:8000/process-document/', formData, {
+                const response = await axios.post('https://hackrx-backend-pw4u.onrender.com/process-document/', formData, {
                     headers: {
                         'Content-Type': 'multipart/form-data'
                     }
@@ -278,7 +281,7 @@ const QueryInput = {
                 // Check if we have a file or URL
                 if (this.documentUrl.type === 'file') {
                     // For uploaded files, use the multiple questions endpoint
-                    const response = await axios.post('http://127.0.0.1:8000/ask-question/multiple', {
+                    const response = await axios.post('https://hackrx-backend-pw4u.onrender.com/ask-question/multiple', {
                         questions: this.selectedQuestions.filter(q => q.trim() !== ''),
                         document_id: 1
                     }, {
@@ -294,7 +297,7 @@ const QueryInput = {
                     });
                 } else {
                     // For URL-based documents, use the hackrx/run endpoint
-                    const response = await axios.post('http://127.0.0.1:8000/hackrx/run', {
+                    const response = await axios.post('https://hackrx-backend-pw4u.onrender.com/hackrx/run', {
                         documents: this.documentUrl.url,
                         questions: this.selectedQuestions.filter(q => q.trim() !== '')
                     }, {
