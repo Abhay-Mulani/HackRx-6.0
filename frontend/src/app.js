@@ -287,11 +287,12 @@ const QueryInput = {
                 // Filter out empty questions
                 const validQuestions = this.selectedQuestions.filter(q => q.trim() !== '');
                 
-                // Prepare payload with real document_id
-                const documentId = this.documentUrl.document_id || 1;
-                const payload = validQuestions.length === 1 
-                    ? { question: validQuestions[0], document_id: documentId }
-                    : { questions: validQuestions, document_id: documentId };
+                // Prepare payload in HackRx format
+                const documentId = this.documentUrl.document_id || "1";
+                const payload = {
+                    documents: documentId.toString(), // Convert to string as expected
+                    questions: validQuestions
+                };
                 
                 console.log('Sending payload:', payload);
                 
@@ -303,22 +304,20 @@ const QueryInput = {
                 
                 console.log('Response from /hackrx/run:', response.data);
                 
-                // Handle the new HackRx evaluation format
+                // Handle HackRx format response
                 let answers;
-                if (response.data.success && response.data.answers) {
-                    answers = response.data.answers;
-                } else if (response.data.result) {
-                    // Fallback for single question format
-                    answers = [{
-                        question: validQuestions[0],
-                        answer: response.data.result,
-                        confidence: response.data.confidence || 0.85
-                    }];
+                if (response.data.answers && Array.isArray(response.data.answers)) {
+                    // Convert simple answer array to our display format
+                    answers = response.data.answers.map((answer, index) => ({
+                        question: validQuestions[index],
+                        answer: answer,
+                        confidence: 0.85 // Default confidence for HackRx format
+                    }));
                 } else {
-                    // Error case
+                    // Fallback for unexpected format
                     answers = validQuestions.map(q => ({
                         question: q,
-                        answer: response.data.error_message || "Processing failed",
+                        answer: "Unexpected response format",
                         confidence: 0.0
                     }));
                 }
@@ -326,8 +325,7 @@ const QueryInput = {
                 this.$emit('results', {
                     questions: validQuestions,
                     answers: answers,
-                    processing_details: response.data.processing_details || [],
-                    success: response.data.success || false
+                    success: true
                 });
                 
             } catch (error) {

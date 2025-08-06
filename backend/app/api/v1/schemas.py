@@ -2,10 +2,8 @@ from pydantic import BaseModel
 from typing import List, Union, Optional
 
 class QueryRequest(BaseModel):
-    document_id: Union[str, int]
-    question: Optional[str] = None
-    questions: Optional[List[str]] = None
- 
+    documents: str  # URL to document or document identifier
+    questions: List[str]  # Array of questions as per HackRx format
+
 class QueryResponse(BaseModel):
-    result: str
-    confidence: float 
+    answers: List[str]  # Simple array of answers as per HackRx format 
