@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Depends, UploadFile, File
-from core.security import get_api_key
+from fastapi import APIRouter, UploadFile, File
 from .schemas import QueryRequest, QueryResponse
 
 router = APIRouter(prefix="/hackrx", tags=["hackrx"])
@@ -13,7 +12,7 @@ def health_check():
         "memory_optimized": True
     }
 
-@router.post("/upload", dependencies=[Depends(get_api_key)])
+@router.post("/upload")
 async def upload_document(file: UploadFile = File(...)):
     """Ultra-lightweight upload for Render free tier"""
     try:
@@ -38,7 +37,7 @@ async def upload_document(file: UploadFile = File(...)):
             "status": "error"
         }
 
-@router.post("/run", response_model=QueryResponse, dependencies=[Depends(get_api_key)])
+@router.post("/run", response_model=QueryResponse)
 def run_query(payload: QueryRequest):
     """Ultra-lightweight query processing for free tier"""
     try:
